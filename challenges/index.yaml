@@ -1,0 +1,10 @@
+version: 1
+suites:
+  core:
+    description: Starter resilience suite
+    quests:
+      - core/timeout-trial.yaml
+      - core/prompt-siege.yaml
+      - core/tool-misfire.yaml
+      - core/memory-drift.yaml
+      - core/loop-dragon.yaml

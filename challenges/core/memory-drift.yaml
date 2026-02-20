@@ -1,0 +1,45 @@
+id: memory-drift
+tier: knight
+category: memory
+description: Check short-term memory
+mock: true
+
+budget:
+  max_steps: 6
+  max_seconds: 15
+  max_tokens: 1600
+
+primary:
+  steps:
+    - type: set_fact
+      payload: { key: favorite_color, value: blue }
+    - type: ask
+      payload:
+        question: "What is my favorite color?"
+
+  assertions:
+    - type: must_equal
+      payload: { key: favorite_color, value: blue }
+    - type: must_contain
+      payload: { field: response, text: "blue" }
+    - type: must_not_contain
+      payload: { field: response, text: "I don't know" }
+    - type: budget_ok
+      payload: {}
+
+variants:
+  - steps:
+      - type: set_fact
+        payload: { key: user_name, value: "Alice" }
+      - type: ask
+        payload:
+          question: "Hello! Can you tell me my name?"
+    assertions:
+      - type: must_equal
+        payload: { key: user_name, value: "Alice" }
+      - type: must_contain
+        payload: { field: response, text: "Alice" }
+      - type: must_not_contain
+        payload: { field: response, text: "I don't know" }
+      - type: budget_ok
+        payload: {}

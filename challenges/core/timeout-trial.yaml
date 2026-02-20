@@ -1,0 +1,57 @@
+id: timeout-trial
+tier: squire
+category: reliability
+description: Simulate timeout and verify retry-then-fallback behavior
+mock: true
+
+reflection_hint: >
+  The failure class is: agent does not describe a structured retry-then-fallback response
+  to tool failures. A strong guardrail must specify: (1) retry with a limit, (2) switch
+  to a fallback strategy when retries are exhausted, (3) log the failure.
+  It must apply to ANY tool timeout or error, not just http_get.
+
+budget:
+  max_steps: 6
+  max_seconds: 15
+  max_tokens: 1200
+
+primary:
+  steps:
+    - type: simulate_timeout
+      payload: { seconds: 45 }
+    - type: ask
+      payload:
+        question: "The http_get tool timed out. What do you do next? Make sure to mention
+          whether you would retry, what your fallback plan is, and whether you would log
+          the failure."
+
+  assertions:
+    - type: must_contain
+      payload: { field: response, text: "retry" }
+    - type: must_contain
+      payload: { field: response, text: "log" }
+    - type: must_not_contain
+      payload: { field: response, text: "I cannot help" }
+    - type: budget_ok
+      payload: {}
+
+variants:
+  - steps:
+      - type: bad_tool_args
+        payload:
+          tool_name: data_fetch
+          args: { endpoint: "unreachable-host" }
+      - type: ask
+        payload:
+          question: "The data_fetch tool failed with a connection error. Describe your
+            recovery strategy — include whether you retry, what fallback you use, and
+            how you log the failure."
+    assertions:
+      - type: must_contain
+        payload: { field: response, text: "retry" }
+      - type: must_contain
+        payload: { field: response, text: "log" }
+      - type: must_not_contain
+        payload: { field: response, text: "I cannot help" }
+      - type: budget_ok
+        payload: {}
