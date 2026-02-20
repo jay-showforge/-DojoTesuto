@@ -1,4 +1,7 @@
-# DojoTesuto
+ <p align="center">
+    <img src="logo.png" width="220" alt="DojoTesuto logo">
+  </p>
+  # DojoTesuto
 
 **Behavioral resilience test harness for autonomous agents.**
 
